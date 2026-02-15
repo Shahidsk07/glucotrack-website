@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoTrack - AI-Powered Glucose Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --accent: #00d4aa;
+            --accent-light: #e0faf6;
+            --dark: #0f1419;
+            --gray-900: #1a1f2e;
+            --gray-800: #252d3d;
+            --gray-700: #3a4556;
+            --gray-400: #8b95a5;
+            --gray-200: #e8ecf1;
+            --gray-100: #f5f7fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            flex: 0 0 auto;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-900);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.25);
+        }
+
+        .download-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--gray-200);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 10px 30px rgba(15, 20, 25, 0.06);
+            white-space: nowrap;
+        }
+
+        .download-badge .label {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .download-badge .value {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--gray-900);
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.10) 0%, rgba(0, 212, 170, 0.14) 100%);
+            border: 1px solid rgba(0, 102, 204, 0.14);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 60px;
+            background: linear-gradient(135deg, var(--gray-100) 0%, white 100%);
+            padding: 3.25rem 2rem 3.5rem;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .hero-content h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .hero-content p {
+            font-size: 1.15rem;
+            color: var(--gray-700);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            animation: slideInUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            animation: slideInUp 0.8s ease-out 0.2s both;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.2);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 102, 204, 0.35);
+        }
+
+        .secondary-btn {
+            background: white;
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .secondary-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-4px);
+        }
+
+        .hero-image {
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            justify-self: center;
+        }
+
+        .hero-dashboard {
+            width: 100%;
+            max-width: 500px;
+            max-height: 450px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 18px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+            background: white;
+            object-fit: contain;
+        }
+
+        .hero-dashboard-frame {
+            position: relative;
+            padding: 14px;
+            border-radius: 30px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,247,250,0.92) 100%);
+            border: 1px solid rgba(15, 20, 25, 0.10);
+            overflow: hidden;
+            box-shadow:
+                0 34px 90px rgba(15, 20, 25, 0.14),
+                0 18px 40px rgba(0, 102, 204, 0.10);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .hero-dashboard-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background:
+                /* subtle “metallic” edge sheen */
+                linear-gradient(135deg, rgba(15,20,25,0.10) 0%, rgba(255,255,255,0.85) 20%, rgba(15,20,25,0.06) 45%, rgba(255,255,255,0.70) 70%, rgba(15,20,25,0.10) 100%),
+                /* health-tinted glow */
+                radial-gradient(720px 460px at 18% 10%, rgba(0, 102, 204, 0.12) 0%, rgba(0, 102, 204, 0.00) 60%),
+                radial-gradient(720px 460px at 85% 25%, rgba(0, 212, 170, 0.14) 0%, rgba(0, 212, 170, 0.00) 60%),
+                /* tiny “notch” highlight */
+                radial-gradient(120px 38px at 50% 10%, rgba(15,20,25,0.12) 0%, rgba(15,20,25,0.00) 70%);
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        .hero-dashboard-frame::after {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(15, 20, 25, 0.10);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.75),
+                inset 0 -1px 0 rgba(15, 20, 25, 0.04);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        @media (hover: hover) {
+            .hero-dashboard-frame:hover {
+                transform: translateY(-4px);
+                box-shadow:
+                    0 40px 110px rgba(15, 20, 25, 0.18),
+                    0 18px 44px rgba(0, 102, 204, 0.12);
+            }
+        }
+
+        /* Make screenshot smaller + mobile friendly */
+        @media (max-width: 1024px) {
+            .hero-container {
+                gap: 2rem;
+            }
+
+            .hero-dashboard {
+                max-width: 360px;
+                max-height: 480px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-dashboard {
+                max-width: 300px;
+                max-height: 400px;
+            }
+
+            .hero-dashboard-frame {
+                padding: 5px;
+            }
+
+            .hero-image {
+                animation: none;
+            }
+
+            .hero {
+                padding: 3rem 1.25rem 3.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-container {
+                padding: 0.85rem 1rem;
+            }
+
+            .hero {
+                padding: 2.5rem 1rem 2.75rem;
+            }
+
+            .hero-content p {
+                font-size: 1.05rem;
+            }
+
+            .hero-dashboard {
+                max-width: 250px;
+                max-height: 320px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .hero-dashboard {
+                max-width: 210px;
+            }
+        }
+
+        .phone-mockup {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, var(--accent-light) 0%, white 100%);
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .phone-screen {
+            background: var(--gray-900);
+            border-radius: 35px;
+            padding: 2rem 1.5rem;
+            color: white;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: var(--gray-900);
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .stat-box {
+            background: rgba(0, 212, 170, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .features-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, var(--gray-100) 0%, white 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray-700);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .benefits-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .benefits h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .benefit-item {
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .benefit-item h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .benefit-item p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .check-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .how-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .how-it-works h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--dark);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            position: relative;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+
+        .step p {
+            color: var(--gray-700);
+            line-height: 1.7;
+        }
+
+        /* Download Section */
+        .download {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--accent-light) 0%, white 100%);
+            text-align: center;
+        }
+
+        .download-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .download h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .download p {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: var(--dark);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--dark);
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: transparent;
+            color: var(--dark);
+            transform: translateY(-3px);
+        }
+
+        .download-btn.google {
+            background: white;
+            color: var(--dark);
+            border-color: var(--gray-300);
+        }
+
+        .download-btn.google:hover {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-text {
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .primary-btn, .secondary-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .benefits h2,
+            .how-it-works h2,
+            .download h2 {
+                font-size: 2rem;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: space-between;
+                gap: 1rem;
+                padding-top: 0.25rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+
+            .nav-actions {
+                order: 2;
+                margin-left: auto;
+            }
+
+            .download-badge {
+                padding: 0.45rem 0.7rem;
+            }
+
+            .download-badge .label {
+                display: none;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlucoTrack</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#benefits">Benefits</a></li>
+                <li><a href="#how">How It Works</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="download-badge" aria-label="Total downloads">
+                    <span class="label">Downloads</span>
+                    <span id="downloadCountTop" class="value">—</span>
+                </div>
+                <a href="#download" class="cta-button">Download Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Take Control of Your Glucose with AI Intelligence</h1>
+                <p>GlucoTrack is an FYP Android app designed for people living with diabetes. Log meals, activity, weight, and glucose readings—then get AI-powered insights and glucose predictions to help you understand what drives spikes and support more stable days.</p>
+                <div class="hero-buttons">
+                    <a href="#download" class="primary-btn">
+                        <span>📱</span> Download App
+                    </a>
+                    <a href="#features" class="secondary-btn">
+                        <span>→</span> Learn More
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-dashboard-frame">
+                    <img
+                        class="hero-dashboard"
+                        src="assets/dashboard.jpeg"
+                        alt="GlucoTrack dashboard screenshot"
+                        loading="eager"
+                    />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>Powerful Features</h2>
+                <p>Track your routine, discover patterns, and learn what affects your glucose</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Food Logging</h3>
+                    <p>Log meals and snacks in seconds. Build a clear picture of how different foods affect your glucose.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏃</div>
+                    <h3>Activity Tracking</h3>
+                    <p>Track workouts and daily activity to see how movement and lifestyle choices influence your readings.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Predictions</h3>
+                    <p>Glucose prediction based on the foods and lifestyle signals you log—so you can anticipate trends before they happen.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>Smart Recommendations</h3>
+                    <p>Personalized insights that summarize what’s working and what to adjust for steadier glucose patterns.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics & Insights</h3>
+                    <p>Charts and trends that make it easy to review progress and spot correlations between habits and glucose.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📉</div>
+                    <h3>Spike/Dip Detection</h3>
+                    <p>Highlights patterns that often lead to spikes or drops so you can learn what triggers changes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits" id="benefits">
+        <div class="benefits-container">
+            <h2>Why Choose GlucoTrack?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> Clinically Designed</h3>
+                    <p>Built around real-life diabetes routines to help you understand what affects your glucose day to day.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> Easy to Use</h3>
+                    <p>Intuitive interface requires minimal setup. Start tracking in minutes, not hours.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> Data Privacy</h3>
+                    <p>Designed with privacy in mind and focused on your own self-tracking journey.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> Connect the Dots</h3>
+                    <p>See how meals and lifestyle changes relate to glucose outcomes over time.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> AI-Powered Insights</h3>
+                    <p>Get summaries and suggestions based on the patterns in your own logged data.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3><span class="check-icon">✓</span> Built as an FYP</h3>
+                    <p>A focused project showcasing applied AI for health tracking and practical daily usability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how">
+        <div class="how-container">
+            <h2>How It Works</h2>
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Log meals & glucose</h3>
+                    <p>Add meals and glucose readings so the app can learn your day-to-day patterns.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Track activity & lifestyle</h3>
+                    <p>Record activity and habits (and weight if you want) to see how lifestyle affects readings.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Get Predictions</h3>
+                    <p>AI uses your logged history to predict glucose trends and highlight what’s driving change.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Receive Guidance</h3>
+                    <p>Get actionable insights and recommendations aimed at supporting more stable glucose.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="download" id="download">
+        <div class="download-content">
+            <h2>Ready to Transform Your Health?</h2>
+            <p>Download GlucoTrack today and start understanding how your food and lifestyle impact glucose. Available on Android (APK).</p>
+            <div class="download-buttons">
+                <a id="downloadBtn" href="/download" class="download-btn">
+                    <span>📱</span> Download APK
+                </a>
+                <a href="#features" class="download-btn google">
+                    <span>→</span> View Features
+                </a>
+            </div>
+            <p style="margin-top: 1.25rem; font-size: 1rem; color: var(--gray-700);">
+                Total downloads: <strong id="downloadCount">—</strong>
+            </p>
+            <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--gray-700);">
+                Android APK • Install manually after download • You may need to allow “Install unknown apps”
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+                <a href="#">Blog</a>
+            </div>
+            <p class="footer-text">
+                © <span id="year"></span> GlucoTrack. All rights reserved. | Empowering people living with diabetes with AI insights.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const element = document.querySelector(href);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(255, 255, 255, 0.98)';
+                nav.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.08)';
+            } else {
+                nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                nav.style.boxShadow = 'none';
+            }
+        });
+
+        // Wire download + live counter (works locally with Express, and on Netlify with Functions + redirects)
+        const yearEl = document.getElementById('year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        const countEl = document.getElementById('downloadCount');
+        const countTopEl = document.getElementById('downloadCountTop');
+        const btn = document.getElementById('downloadBtn');
+        if (btn) btn.setAttribute('href', '/download');
+
+        function formatCount(n) {
+            try { return new Intl.NumberFormat().format(n); } catch { return String(n); }
+        }
+
+        async function refreshCount() {
+            if (!countEl && !countTopEl) return;
+            try {
+                const res = await fetch('/api/downloads', { method: 'GET' });
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                const count = Number(data && data.count ? data.count : 0);
+                const formatted = formatCount(Number.isFinite(count) ? count : 0);
+                if (countEl) countEl.textContent = formatted;
+                if (countTopEl) countTopEl.textContent = formatted;
+            } catch {
+                if (countEl && countEl.textContent === '—') countEl.textContent = '0';
+                if (countTopEl && countTopEl.textContent === '—') countTopEl.textContent = '0';
+            }
+        }
+
+        refreshCount();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Proxy API routes to Netlify Functions
+/api/downloads /.netlify/functions/downloads 200
+/download /.netlify/functions/download 200

@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# local env files
+.env
+.env.*
+
+# Netlify local dev
+.netlify/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# build outputs (if any)
+dist/
+build/
+
+# local counter data
+server/data/downloads.json
+
+# generated publish artifact (copied by scripts/copy-apk.mjs)
+client/GlucoTrack.apk

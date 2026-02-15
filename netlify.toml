@@ -1,0 +1,14 @@
+[build]
+  publish = "client"
+  functions = "netlify/functions"
+  command = "node scripts/copy-apk.mjs"
+
+[functions]
+  node_bundler = "esbuild"
+
+# (Optional) keep the SPA working on refresh
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false

@@ -1,0 +1,11 @@
+{
+  "name": "glucotrack-site",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "scripts": {
+    "dev": "cd server && npm run dev"
+  }
+}
