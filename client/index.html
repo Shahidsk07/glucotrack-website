@@ -982,6 +982,64 @@
             <p style="margin-top: 1.25rem; font-size: 1rem; color: var(--gray-700);">
                 Total downloads: <strong id="downloadCount">—</strong>
             </p>
+
+            <div style="margin-top: 1rem; display: grid; gap: 0.6rem;">
+                <p style="font-size: 0.95rem; color: var(--gray-700);">
+                    Last transaction (proof):
+                    <strong id="lastTransactionId">—</strong>
+                    <span id="lastTransactionTime" style="margin-left: 0.5rem; color: var(--gray-400);"></span>
+                </p>
+                <a id="refreshTransactionsBtn" href="#" class="download-btn google" style="max-width: 280px;">
+                    <span>↻</span> Refresh Transaction Proof
+                </a>
+                <p style="font-size: 0.85rem; color: var(--gray-400);">
+                    For the demo: click Download once, then click Refresh to show the recorded DB transaction.
+                </p>
+            </div>
+
+            <div style="margin-top: 1.35rem; padding-top: 1.15rem; border-top: 1px solid var(--gray-200); display: grid; gap: 0.75rem;">
+                <p style="font-size: 0.98rem; color: var(--gray-700); font-weight: 600;">EasyPaisa payment proof (real transaction)</p>
+                <p style="margin-top: -0.35rem; font-size: 0.9rem; color: var(--gray-700);">
+                    Step 1: Send <strong>PKR 10</strong> using the EasyPaisa app (to your receiver account).
+                    Step 2: Copy the <strong>Transaction ID (TRX ID)</strong> and submit it here.
+                </p>
+
+                <form id="easypaisaProofForm" style="display: grid; gap: 0.65rem; max-width: 520px;">
+                    <input
+                        id="easypaisaTxnId"
+                        type="text"
+                        inputmode="text"
+                        placeholder="Paste EasyPaisa Transaction ID (e.g., ID#46020613208)"
+                        autocomplete="off"
+                        style="padding: 0.95rem 1rem; border-radius: 12px; border: 1px solid var(--gray-200); background: rgba(255,255,255,0.92); color: var(--gray-900);"
+                        required
+                    />
+                    <input
+                        id="easypaisaAmount"
+                        type="number"
+                        inputmode="numeric"
+                        min="1"
+                        value="10"
+                        style="padding: 0.95rem 1rem; border-radius: 12px; border: 1px solid var(--gray-200); background: rgba(255,255,255,0.92); color: var(--gray-900); max-width: 180px;"
+                        required
+                    />
+                    <div class="download-buttons" style="justify-content: flex-start;">
+                        <button type="submit" class="download-btn" style="border: none;">
+                            <span>✓</span> Submit Payment Proof
+                        </button>
+                        <a id="refreshPaymentProofBtn" href="#" class="download-btn google" style="max-width: 250px;">
+                            <span>↻</span> Refresh Proof
+                        </a>
+                    </div>
+                    <p id="paymentProofStatus" style="margin: 0; font-size: 0.9rem; color: var(--gray-700);"></p>
+                </form>
+
+                <p style="font-size: 0.9rem; color: var(--gray-700);">
+                    Latest EasyPaisa proof:
+                    <strong id="latestPaymentTxn">—</strong>
+                    <span id="latestPaymentTime" style="margin-left: 0.5rem; color: var(--gray-400);"></span>
+                </p>
+            </div>
             <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--gray-700);">
                 Android APK • Install manually after download • You may need to allow “Install unknown apps”
             </p>
@@ -1059,7 +1117,110 @@
             }
         }
 
+        const lastTxnIdEl = document.getElementById('lastTransactionId');
+        const lastTxnTimeEl = document.getElementById('lastTransactionTime');
+        const refreshTxnBtn = document.getElementById('refreshTransactionsBtn');
+
+        function formatTxnTime(iso) {
+            try {
+                const dt = new Date(String(iso));
+                if (Number.isNaN(dt.getTime())) return '';
+                return `(${dt.toLocaleString()})`;
+            } catch {
+                return '';
+            }
+        }
+
+        async function refreshLastTransaction() {
+            if (!lastTxnIdEl && !lastTxnTimeEl) return;
+            try {
+                const res = await fetch('/api/transactions?limit=1', { method: 'GET' });
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                const latest = data && data.latest ? data.latest : null;
+                const id = latest && latest.id ? String(latest.id) : '—';
+                const time = latest && latest.created_at ? formatTxnTime(latest.created_at) : '';
+                if (lastTxnIdEl) lastTxnIdEl.textContent = id;
+                if (lastTxnTimeEl) lastTxnTimeEl.textContent = time;
+            } catch {
+                if (lastTxnIdEl && lastTxnIdEl.textContent === '—') lastTxnIdEl.textContent = '—';
+                if (lastTxnTimeEl) lastTxnTimeEl.textContent = '';
+            }
+        }
+
+        const proofForm = document.getElementById('easypaisaProofForm');
+        const proofTxnEl = document.getElementById('easypaisaTxnId');
+        const proofAmountEl = document.getElementById('easypaisaAmount');
+        const proofStatusEl = document.getElementById('paymentProofStatus');
+        const latestPaymentTxnEl = document.getElementById('latestPaymentTxn');
+        const latestPaymentTimeEl = document.getElementById('latestPaymentTime');
+        const refreshPaymentProofBtn = document.getElementById('refreshPaymentProofBtn');
+
+        async function refreshLatestPaymentProof() {
+            if (!latestPaymentTxnEl && !latestPaymentTimeEl) return;
+            try {
+                const res = await fetch('/api/payment-proof', { method: 'GET' });
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                const latest = data && data.latest ? data.latest : null;
+                const txn = latest && latest.transaction_id ? String(latest.transaction_id) : '—';
+                const time = latest && latest.created_at ? formatTxnTime(latest.created_at) : '';
+                if (latestPaymentTxnEl) latestPaymentTxnEl.textContent = txn;
+                if (latestPaymentTimeEl) latestPaymentTimeEl.textContent = time;
+            } catch {
+                if (latestPaymentTxnEl && latestPaymentTxnEl.textContent === '—') latestPaymentTxnEl.textContent = '—';
+                if (latestPaymentTimeEl) latestPaymentTimeEl.textContent = '';
+            }
+        }
+
+        if (refreshPaymentProofBtn) {
+            refreshPaymentProofBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                refreshLatestPaymentProof();
+            });
+        }
+
+        if (proofForm) {
+            proofForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (proofStatusEl) proofStatusEl.textContent = 'Submitting…';
+
+                const transaction_id = proofTxnEl ? String(proofTxnEl.value || '').trim() : '';
+                const amount_pkr = proofAmountEl ? Number(proofAmountEl.value) : 10;
+
+                try {
+                    const res = await fetch('/api/payment-proof', {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify({ provider: 'easypaisa', transaction_id, amount_pkr })
+                    });
+
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        const msg = data && data.error ? String(data.error) : 'Failed to submit';
+                        if (proofStatusEl) proofStatusEl.textContent = msg;
+                        return;
+                    }
+
+                    if (proofStatusEl) proofStatusEl.textContent = 'Saved. Refreshing proof…';
+                    await refreshLatestPaymentProof();
+                    if (proofStatusEl) proofStatusEl.textContent = 'Payment proof saved successfully.';
+                } catch {
+                    if (proofStatusEl) proofStatusEl.textContent = 'Network/server error. Try again.';
+                }
+            });
+        }
+
+        if (refreshTxnBtn) {
+            refreshTxnBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                refreshLastTransaction();
+            });
+        }
+
         refreshCount();
+        refreshLastTransaction();
+        refreshLatestPaymentProof();
     </script>
 </body>
 </html>

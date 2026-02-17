@@ -51,6 +51,39 @@ npm run dev
 	- redirects to your Google Drive link (fallback).
 - The server stores the count in `server/data/downloads.json`.
 
+## “One real transaction” (FYP committee proof)
+
+On Netlify + Supabase, each click on **Download APK** can be recorded as a real database transaction:
+
+- Counter increment (downloads)
+- A new row insert into `download_events` with an auto-generated `id` and `created_at`
+
+The website shows this as **Last transaction (proof)** (transaction ID + timestamp) in the Download section.
+
+Demo flow:
+
+1. Deploy on Netlify with Supabase env vars set
+2. Click **Download APK** once
+3. Click **Refresh Transaction Proof**
+4. Show the transaction ID/time on the website + Supabase table row (optional screenshot)
+
+### EasyPaisa (bank) transaction proof
+
+If your committee specifically needs a **bank/EasyPaisa** transaction, you have two options:
+
+1) **Without merchant API credentials (implemented in this repo):**
+- Make a real EasyPaisa transfer (e.g., PKR 10) in the EasyPaisa app
+- Copy the **Transaction ID (TRX ID)**
+- On the website, submit it in **EasyPaisa payment proof**
+- The site stores it in Supabase (`payment_proofs`) and shows the latest proof on the page
+
+Quick insert (SQL):
+
+- Supabase Dashboard → SQL Editor → run [supabase/seed_payment_proof.sql](supabase/seed_payment_proof.sql)
+
+2) **With merchant API credentials (not possible without credentials):**
+- Implement hosted checkout + callback verification (requires EasyPaisa merchant onboarding, keys, and allowed callback URLs)
+
 ## About “direct install”
 
 Websites can’t silently install an APK. The normal flow is:
