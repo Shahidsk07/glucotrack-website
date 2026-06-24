@@ -72,3 +72,25 @@ create table if not exists public.reviews (
 );
 
 alter table public.reviews enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'reviews' and policyname = 'Allow public reads of approved reviews'
+  ) then
+    create policy "Allow public reads of approved reviews"
+      on public.reviews
+      for select
+      using (approved = true);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'reviews' and policyname = 'Allow public inserts for reviews'
+  ) then
+    create policy "Allow public inserts for reviews"
+      on public.reviews
+      for insert
+      with check (true);
+  end if;
+end
+$$;

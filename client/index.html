@@ -1174,7 +1174,9 @@
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) {
-                        const msg = data && data.error ? String(data.error) : 'Failed to submit review';
+                        const fallback = data && data.error ? String(data.error) : 'Failed to submit review';
+                        const details = data && data.details ? String(data.details) : '';
+                        const msg = details ? `${fallback}: ${details}` : fallback;
                         if (reviewStatusEl) reviewStatusEl.textContent = msg;
                         return;
                     }

@@ -50,7 +50,10 @@ exports.handler = async (event) => {
         .single();
 
       if (error) {
-        return json(500, { error: 'Failed to save review' });
+        return json(500, {
+          error: 'Failed to save review',
+          details: String(error?.message || 'Unknown Supabase error'),
+        });
       }
 
       return json(200, { ok: true, review: data });
