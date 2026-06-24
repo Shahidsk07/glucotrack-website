@@ -3,4 +3,3 @@
 /download /.netlify/functions/download 200
 /api/transactions /.netlify/functions/transactions 200
 /api/payment-proof /.netlify/functions/payment-proof 200
-/api/reviews /.netlify/functions/reviews 200
