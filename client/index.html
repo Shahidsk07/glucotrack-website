@@ -1126,16 +1126,17 @@
             if (!reviewsListEl) return;
             reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">Loading reviews…</p>';
             try {
-                let res;
-                try {
-                    res = await fetch('/.netlify/functions/reviews?limit=8', { method: 'GET' });
-                } catch {
-                    res = await fetch('/api/reviews?limit=8', { method: 'GET' });
-                }
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-                const reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
-                if (!reviews.length) {
+                const supabaseUrl = 'https://kzudvubqiwmcqjhkfprj.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InR5cG9zZW5rZXkifQ.eyJpc3MiOiJzdXBhYmFzZSIsInJvbGVzIjoiYW5vbiIsImV4cCI6MTc5NDE3OTQ2MCwiYXVkaSI6ImFudG9uLXVzZXIiLCJzdWIiOiJhbm9uLXVzZXIiLCJqdGkiOiJmYzY5Mjg0ZjQ0MTJjMzBjYmM1NmY1Nzk4Y2M1YTMwYyIsImlhdCI6MTc0NjkwMDAwMH0.WuKx3A2GUYdRk9s2_PA4gR3Y5FugC6yG0U63pR2J5gA';
+                const response = await fetch(`${supabaseUrl}/rest/v1/reviews?approved=eq.true&select=id,created_at,display_name,stars,comment&order=created_at.desc&limit=8`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                    },
+                });
+                if (!response.ok) throw new Error('Failed');
+                const reviews = await response.json();
+                if (!Array.isArray(reviews) || !reviews.length) {
                     reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">No reviews yet. Be the first to share your experience.</p>';
                     return;
                 }
@@ -1171,25 +1172,27 @@
                 const stars = document.querySelector('input[name="reviewStars"]:checked')?.value || '5';
 
                 try {
-                    let res;
-                    try {
-                        res = await fetch('/.netlify/functions/reviews', {
-                            method: 'POST',
-                            headers: { 'content-type': 'application/json' },
-                            body: JSON.stringify({ display_name, comment, stars: Number(stars) })
-                        });
-                    } catch {
-                        res = await fetch('/api/reviews', {
-                            method: 'POST',
-                            headers: { 'content-type': 'application/json' },
-                            body: JSON.stringify({ display_name, comment, stars: Number(stars) })
-                        });
-                    }
+                    const supabaseUrl = 'https://kzudvubqiwmcqjhkfprj.supabase.co';
+                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InR5cG9zZW5rZXkifQ.eyJpc3MiOiJzdXBhYmFzZSIsInJvbGVzIjoiYW5vbiIsImV4cCI6MTc5NDE3OTQ2MCwiYXVkaSI6ImFudG9uLXVzZXIiLCJzdWIiOiJhbm9uLXVzZXIiLCJqdGkiOiJmYzY5Mjg0ZjQ0MTJjMzBjYmM1NmY1Nzk4Y2M1YTMwYyIsImlhdCI6MTc0NjkwMDAwMH0.WuKx3A2GUYdRk9s2_PA4gR3Y5FugC6yG0U63pR2J5gA';
+                    const res = await fetch(`${supabaseUrl}/rest/v1/reviews`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                        },
+                        body: JSON.stringify({
+                            display_name: display_name || 'Anonymous',
+                            stars: Number(stars),
+                            comment,
+                            approved: true,
+                        }),
+                    });
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) {
                         const fallback = data && data.error ? String(data.error) : 'Failed to submit review';
-                        const details = data && data.details ? String(data.details) : '';
+                        const details = data && data.message ? String(data.message) : '';
                         const msg = details ? `${fallback}: ${details}` : fallback;
                         if (reviewStatusEl) reviewStatusEl.textContent = msg;
                         return;
