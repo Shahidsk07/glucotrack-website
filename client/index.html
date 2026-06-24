@@ -1126,7 +1126,12 @@
             if (!reviewsListEl) return;
             reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">Loading reviews…</p>';
             try {
-                const res = await fetch('/.netlify/functions/reviews?limit=8', { method: 'GET' });
+                let res;
+                try {
+                    res = await fetch('/.netlify/functions/reviews?limit=8', { method: 'GET' });
+                } catch {
+                    res = await fetch('/api/reviews?limit=8', { method: 'GET' });
+                }
                 if (!res.ok) throw new Error('Failed');
                 const data = await res.json();
                 const reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
@@ -1166,11 +1171,20 @@
                 const stars = document.querySelector('input[name="reviewStars"]:checked')?.value || '5';
 
                 try {
-                    const res = await fetch('/.netlify/functions/reviews', {
-                        method: 'POST',
-                        headers: { 'content-type': 'application/json' },
-                        body: JSON.stringify({ display_name, comment, stars: Number(stars) })
-                    });
+                    let res;
+                    try {
+                        res = await fetch('/.netlify/functions/reviews', {
+                            method: 'POST',
+                            headers: { 'content-type': 'application/json' },
+                            body: JSON.stringify({ display_name, comment, stars: Number(stars) })
+                        });
+                    } catch {
+                        res = await fetch('/api/reviews', {
+                            method: 'POST',
+                            headers: { 'content-type': 'application/json' },
+                            body: JSON.stringify({ display_name, comment, stars: Number(stars) })
+                        });
+                    }
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) {

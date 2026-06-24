@@ -18,8 +18,13 @@ function normalizeText(value, fallback = '') {
 
 exports.handler = async (event) => {
   try {
-    const supabase = getSupabaseClient();
     const method = (event?.httpMethod || 'GET').toUpperCase();
+
+    if (method === 'GET' && event?.queryStringParameters?.health === '1') {
+      return json(200, { ok: true, service: 'reviews' });
+    }
+
+    const supabase = getSupabaseClient();
 
     if (method === 'POST') {
       let payload;
