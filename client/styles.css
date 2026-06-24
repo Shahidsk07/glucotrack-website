@@ -283,6 +283,67 @@ button:focus-visible {
   font-size: 13px;
 }
 
+.review-form {
+  gap: 0.75rem;
+}
+
+.star-picker {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  font-size: 1.35rem;
+}
+
+.star-picker label {
+  cursor: pointer;
+  color: #d1d5db;
+}
+
+.star-picker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.star-picker input:checked ~ span,
+.star-picker label:hover ~ span,
+.star-picker label:hover {
+  color: #f59e0b;
+}
+
+.reviews-list {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 620px;
+}
+
+.review-card {
+  border: 1px solid rgba(2,14,10,0.10);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: rgba(255,255,255,0.9);
+}
+
+.review-card strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+  color: var(--muted2);
+  font-size: 0.9rem;
+}
+
+.review-stars {
+  color: #f59e0b;
+  letter-spacing: 0.08em;
+}
+
 @media (max-width: 520px) {
   .container {
     padding: 44px 16px 40px;

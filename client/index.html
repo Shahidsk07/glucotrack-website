@@ -983,62 +983,46 @@
                 Total downloads: <strong id="downloadCount">—</strong>
             </p>
 
-            <div style="margin-top: 1rem; display: grid; gap: 0.6rem;">
-                <p style="font-size: 0.95rem; color: var(--gray-700);">
-                    Last transaction (proof):
-                    <strong id="lastTransactionId">—</strong>
-                    <span id="lastTransactionTime" style="margin-left: 0.5rem; color: var(--gray-400);"></span>
-                </p>
-                <a id="refreshTransactionsBtn" href="#" class="download-btn google" style="max-width: 280px;">
-                    <span>↻</span> Refresh Transaction Proof
-                </a>
-                <p style="font-size: 0.85rem; color: var(--gray-400);">
-                    For the demo: click Download once, then click Refresh to show the recorded DB transaction.
-                </p>
-            </div>
-
             <div style="margin-top: 1.35rem; padding-top: 1.15rem; border-top: 1px solid var(--gray-200); display: grid; gap: 0.75rem;">
-                <p style="font-size: 0.98rem; color: var(--gray-700); font-weight: 600;">EasyPaisa payment proof (real transaction)</p>
+                <p style="font-size: 0.98rem; color: var(--gray-700); font-weight: 600;">Community Reviews</p>
                 <p style="margin-top: -0.35rem; font-size: 0.9rem; color: var(--gray-700);">
-                    Step 1: Send <strong>PKR 10</strong> using the EasyPaisa app (to your receiver account).
-                    Step 2: Copy the <strong>Transaction ID (TRX ID)</strong> and submit it here.
+                    Share your experience with GlucoTrack and help other users see what the app feels like in real life.
                 </p>
 
-                <form id="easypaisaProofForm" style="display: grid; gap: 0.65rem; max-width: 520px;">
+                <form id="reviewForm" class="review-form" style="display: grid; gap: 0.65rem; max-width: 620px;">
                     <input
-                        id="easypaisaTxnId"
+                        id="reviewerName"
                         type="text"
-                        inputmode="text"
-                        placeholder="Paste EasyPaisa Transaction ID (e.g., ID#46020613208)"
-                        autocomplete="off"
+                        placeholder="Your name (optional)"
+                        autocomplete="name"
                         style="padding: 0.95rem 1rem; border-radius: 12px; border: 1px solid var(--gray-200); background: rgba(255,255,255,0.92); color: var(--gray-900);"
-                        required
                     />
-                    <input
-                        id="easypaisaAmount"
-                        type="number"
-                        inputmode="numeric"
-                        min="1"
-                        value="10"
-                        style="padding: 0.95rem 1rem; border-radius: 12px; border: 1px solid var(--gray-200); background: rgba(255,255,255,0.92); color: var(--gray-900); max-width: 180px;"
+                    <div class="star-picker" role="radiogroup" aria-label="Rating">
+                        <label><input type="radio" name="reviewStars" value="5" checked><span>★</span></label>
+                        <label><input type="radio" name="reviewStars" value="4"><span>★</span></label>
+                        <label><input type="radio" name="reviewStars" value="3"><span>★</span></label>
+                        <label><input type="radio" name="reviewStars" value="2"><span>★</span></label>
+                        <label><input type="radio" name="reviewStars" value="1"><span>★</span></label>
+                    </div>
+                    <textarea
+                        id="reviewComment"
+                        rows="4"
+                        placeholder="Tell others what you liked or what could be improved..."
+                        style="padding: 0.95rem 1rem; border-radius: 12px; border: 1px solid var(--gray-200); background: rgba(255,255,255,0.92); color: var(--gray-900); resize: vertical;"
                         required
-                    />
+                    ></textarea>
                     <div class="download-buttons" style="justify-content: flex-start;">
                         <button type="submit" class="download-btn" style="border: none;">
-                            <span>✓</span> Submit Payment Proof
+                            <span>✓</span> Submit Review
                         </button>
-                        <a id="refreshPaymentProofBtn" href="#" class="download-btn google" style="max-width: 250px;">
-                            <span>↻</span> Refresh Proof
+                        <a id="refreshReviewsBtn" href="#" class="download-btn google" style="max-width: 250px;">
+                            <span>↻</span> Refresh Reviews
                         </a>
                     </div>
-                    <p id="paymentProofStatus" style="margin: 0; font-size: 0.9rem; color: var(--gray-700);"></p>
+                    <p id="reviewStatus" style="margin: 0; font-size: 0.9rem; color: var(--gray-700);"></p>
                 </form>
 
-                <p style="font-size: 0.9rem; color: var(--gray-700);">
-                    Latest EasyPaisa proof:
-                    <strong id="latestPaymentTxn">—</strong>
-                    <span id="latestPaymentTime" style="margin-left: 0.5rem; color: var(--gray-400);"></span>
-                </p>
+                <div id="reviewsList" class="reviews-list"></div>
             </div>
             <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--gray-700);">
                 Android APK • Install manually after download • You may need to allow “Install unknown apps”
@@ -1117,110 +1101,99 @@
             }
         }
 
-        const lastTxnIdEl = document.getElementById('lastTransactionId');
-        const lastTxnTimeEl = document.getElementById('lastTransactionTime');
-        const refreshTxnBtn = document.getElementById('refreshTransactionsBtn');
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewNameEl = document.getElementById('reviewerName');
+        const reviewCommentEl = document.getElementById('reviewComment');
+        const reviewStatusEl = document.getElementById('reviewStatus');
+        const reviewsListEl = document.getElementById('reviewsList');
+        const refreshReviewsBtn = document.getElementById('refreshReviewsBtn');
 
-        function formatTxnTime(iso) {
+        function renderStars(stars) {
+            return '★'.repeat(Number(stars) || 0) + '☆'.repeat(5 - (Number(stars) || 0));
+        }
+
+        function formatReviewTime(iso) {
             try {
                 const dt = new Date(String(iso));
                 if (Number.isNaN(dt.getTime())) return '';
-                return `(${dt.toLocaleString()})`;
+                return `• ${dt.toLocaleDateString()}`;
             } catch {
                 return '';
             }
         }
 
-        async function refreshLastTransaction() {
-            if (!lastTxnIdEl && !lastTxnTimeEl) return;
+        async function refreshReviews() {
+            if (!reviewsListEl) return;
+            reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">Loading reviews…</p>';
             try {
-                const res = await fetch('/api/transactions?limit=1', { method: 'GET' });
+                const res = await fetch('/api/reviews?limit=8', { method: 'GET' });
                 if (!res.ok) throw new Error('Failed');
                 const data = await res.json();
-                const latest = data && data.latest ? data.latest : null;
-                const id = latest && latest.id ? String(latest.id) : '—';
-                const time = latest && latest.created_at ? formatTxnTime(latest.created_at) : '';
-                if (lastTxnIdEl) lastTxnIdEl.textContent = id;
-                if (lastTxnTimeEl) lastTxnTimeEl.textContent = time;
+                const reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
+                if (!reviews.length) {
+                    reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">No reviews yet. Be the first to share your experience.</p>';
+                    return;
+                }
+                reviewsListEl.innerHTML = reviews.map((review) => `
+                    <article class="review-card">
+                        <strong>${(review.display_name || 'Anonymous').replace(/[<>]/g, '')}</strong>
+                        <div class="review-meta">
+                            <span class="review-stars">${renderStars(review.stars)}</span>
+                            <span>${formatReviewTime(review.created_at)}</span>
+                        </div>
+                        <p style="margin: 0; color: var(--gray-700);">${(review.comment || '').replace(/[<>]/g, '')}</p>
+                    </article>
+                `).join('');
             } catch {
-                if (lastTxnIdEl && lastTxnIdEl.textContent === '—') lastTxnIdEl.textContent = '—';
-                if (lastTxnTimeEl) lastTxnTimeEl.textContent = '';
+                reviewsListEl.innerHTML = '<p style="font-size: 0.9rem; color: var(--gray-700);">Unable to load reviews right now.</p>';
             }
         }
 
-        const proofForm = document.getElementById('easypaisaProofForm');
-        const proofTxnEl = document.getElementById('easypaisaTxnId');
-        const proofAmountEl = document.getElementById('easypaisaAmount');
-        const proofStatusEl = document.getElementById('paymentProofStatus');
-        const latestPaymentTxnEl = document.getElementById('latestPaymentTxn');
-        const latestPaymentTimeEl = document.getElementById('latestPaymentTime');
-        const refreshPaymentProofBtn = document.getElementById('refreshPaymentProofBtn');
-
-        async function refreshLatestPaymentProof() {
-            if (!latestPaymentTxnEl && !latestPaymentTimeEl) return;
-            try {
-                const res = await fetch('/api/payment-proof', { method: 'GET' });
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-                const latest = data && data.latest ? data.latest : null;
-                const txn = latest && latest.transaction_id ? String(latest.transaction_id) : '—';
-                const time = latest && latest.created_at ? formatTxnTime(latest.created_at) : '';
-                if (latestPaymentTxnEl) latestPaymentTxnEl.textContent = txn;
-                if (latestPaymentTimeEl) latestPaymentTimeEl.textContent = time;
-            } catch {
-                if (latestPaymentTxnEl && latestPaymentTxnEl.textContent === '—') latestPaymentTxnEl.textContent = '—';
-                if (latestPaymentTimeEl) latestPaymentTimeEl.textContent = '';
-            }
-        }
-
-        if (refreshPaymentProofBtn) {
-            refreshPaymentProofBtn.addEventListener('click', (e) => {
+        if (refreshReviewsBtn) {
+            refreshReviewsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                refreshLatestPaymentProof();
+                refreshReviews();
             });
         }
 
-        if (proofForm) {
-            proofForm.addEventListener('submit', async (e) => {
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (proofStatusEl) proofStatusEl.textContent = 'Submitting…';
+                if (reviewStatusEl) reviewStatusEl.textContent = 'Submitting…';
 
-                const transaction_id = proofTxnEl ? String(proofTxnEl.value || '').trim() : '';
-                const amount_pkr = proofAmountEl ? Number(proofAmountEl.value) : 10;
+                const display_name = reviewNameEl ? String(reviewNameEl.value || '').trim() : '';
+                const comment = reviewCommentEl ? String(reviewCommentEl.value || '').trim() : '';
+                const stars = document.querySelector('input[name="reviewStars"]:checked')?.value || '5';
 
                 try {
-                    const res = await fetch('/api/payment-proof', {
+                    const res = await fetch('/api/reviews', {
                         method: 'POST',
                         headers: { 'content-type': 'application/json' },
-                        body: JSON.stringify({ provider: 'easypaisa', transaction_id, amount_pkr })
+                        body: JSON.stringify({ display_name, comment, stars: Number(stars) })
                     });
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) {
-                        const msg = data && data.error ? String(data.error) : 'Failed to submit';
-                        if (proofStatusEl) proofStatusEl.textContent = msg;
+                        const msg = data && data.error ? String(data.error) : 'Failed to submit review';
+                        if (reviewStatusEl) reviewStatusEl.textContent = msg;
                         return;
                     }
 
-                    if (proofStatusEl) proofStatusEl.textContent = 'Saved. Refreshing proof…';
-                    await refreshLatestPaymentProof();
-                    if (proofStatusEl) proofStatusEl.textContent = 'Payment proof saved successfully.';
+                    if (reviewStatusEl) reviewStatusEl.textContent = 'Review posted successfully.';
+                    if (reviewCommentEl) reviewCommentEl.value = '';
+                    if (reviewNameEl) reviewNameEl.value = '';
+                    document.querySelectorAll('input[name="reviewStars"]').forEach((radio) => {
+                        radio.checked = radio.value === '5';
+                    });
+                    await refreshReviews();
                 } catch {
-                    if (proofStatusEl) proofStatusEl.textContent = 'Network/server error. Try again.';
+                    if (reviewStatusEl) reviewStatusEl.textContent = 'Network/server error. Try again.';
                 }
             });
         }
 
-        if (refreshTxnBtn) {
-            refreshTxnBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                refreshLastTransaction();
-            });
-        }
-
         refreshCount();
-        refreshLastTransaction();
-        refreshLatestPaymentProof();
+        refreshReviews();
     </script>
 </body>
 </html>
